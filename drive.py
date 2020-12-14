@@ -29,11 +29,15 @@ PWM_RANGE = 1024
 PWM_CLOCK = 375
 
 # set Servo OFFSET
+# for SG90 Servo, 0deg=31ms, 180deg=135ms
 SERVO_MIN_MS = 31
 SERVO_MAX_MS = 135
+# available degree for SG90
+SERVO_MIN_DEG = 0
+SERVO_MAX_DEG = 180
 
 # camera pod axes degree
-POD_V_MIN_DEG = 0
+POD_V_MIN_DEG = -21 
 POD_V_MAX_DEG = 90
 POD_H_MIN_DEG = 0
 POD_H_MAX_DEG = 180
@@ -41,12 +45,31 @@ POD_H_MAX_DEG = 180
 def map_axis(value,fromLow,fromHigh,toLow,toHigh):
     return int((toHigh-toLow)*(value-fromLow) / (fromHigh-fromLow) + toLow)
 
-def servoWrite(pin, angle, min=0, max=90):
-    if (angle > max):
-        angle = max
-    elif (angle < min):
-        angle =min
-    wpi.pwmWrite(pin, map_axis(angle, min,max, SERVO_MIN_MS, SERVO_MAX_MS))
+def servoWrite(pin, angle, mindeg=0, maxdeg=90):
+    offset = 0 - mindeg
+    mindeg = offset + mindeg
+    maxdeg = offset + maxdeg
+    angle = offset + angle
+    if (angle > maxdeg):
+        angle = maxdeg
+    elif (angle < mindeg):
+        angle =mindeg
+    wpi.pwmWrite(pin, map_axis(angle, SERVO_MIN_DEG, SERVO_MAX_DEG, SERVO_MIN_MS, SERVO_MAX_MS))
+
+def servoWriteV(pin, angle, mindeg=0, maxdeg=90):
+    # this projects Vetial Servo is not apply spec for SG90
+    # dam patch...
+    V_SERVO_MIN_MS = 28
+    V_SERVO_MAX_MS = 81
+    offset = 0 - mindeg
+    mindeg = offset + mindeg
+    maxdeg = offset + maxdeg
+    angle = offset + angle
+    if (angle > maxdeg):
+        angle = maxdeg
+    elif (angle < mindeg):
+        angle =mindeg
+    wpi.pwmWrite(pin, map_axis(angle, 0, 111, V_SERVO_MIN_MS, V_SERVO_MAX_MS))
 
 class caterpillar():
     def __init__(self, wpi):
@@ -132,7 +155,7 @@ class camera_pod():
     
     def Move(self, com, val=0):
         if com == "POD_V":
-            servoWrite(POD_V,val, POD_V_MIN_DEG, POD_V_MAX_DEG)
+            servoWriteV(POD_V,val, POD_V_MIN_DEG, POD_V_MAX_DEG)
         elif com == "POD_H":
             servoWrite(POD_H,val, POD_H_MIN_DEG, POD_H_MAX_DEG)
     
@@ -142,7 +165,7 @@ class camera_pod():
 
 
     def Test(self):
-        self.Move("POD_V", 0)
+        self.Move("POD_V", -27)
         self.Move("POD_H", 0)
         wpi.delay(1000)
         self.Move("POD_H", 90)
