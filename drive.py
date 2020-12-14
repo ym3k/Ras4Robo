@@ -149,19 +149,24 @@ class camera_pod():
         wpi.pwmSetRange(PWM_RANGE)
         wpi.pwmSetClock(PWM_CLOCK)
 
-
-        #wpi.softPwmCreate(POD_H, 0, 200)
-        #wpi.softPwmCreate(POD_V, 0, 200)
+        self.lock=True
     
     def Move(self, com, val=0):
-        if com == "POD_V":
-            servoWriteV(POD_V,val, POD_V_MIN_DEG, POD_V_MAX_DEG)
-        elif com == "POD_H":
-            servoWrite(POD_H,val, POD_H_MIN_DEG, POD_H_MAX_DEG)
+        if self.lock == False:
+            if com == "POD_V":
+                servoWriteV(POD_V,val, POD_V_MIN_DEG, POD_V_MAX_DEG)
+            elif com == "POD_H":
+                servoWrite(POD_H,val, POD_H_MIN_DEG, POD_H_MAX_DEG)
+        if com == "BRK":
+            if self.lock:
+                self.lock = False
+            else:
+                self.Stop()
     
-    def Stop(self):
+    def Stop(self, lock=True):
         wpi.pwmWrite(POD_H, 0)
         wpi.pwmWrite(POD_V, 0)
+        self.lock = lock
 
 
     def Test(self):
@@ -177,7 +182,7 @@ class camera_pod():
         self.Move("POD_H", 90)
         self.Move("POD_V", 0)
         wpi.delay(1000)
-        self.Stop()
+        self.Stop(lock=False)
 
 
 if __name__ == "__main__":

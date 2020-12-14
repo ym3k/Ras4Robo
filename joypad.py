@@ -61,21 +61,26 @@ for event in gamepad.read_loop():
                 Move_ctrl("L_RW", L_Y_val)
             else:
                 Move_ctrl("L_STOP")
-        if event.code == axisR_Y:
-            axis_val_R = event.value-127
-            R_Y_val = map_axis(abs(event.value-127),0,128,50,100)
-            print("axisR_Y", R_Y_val)
-            if axis_val_R < 0:
-                Move_ctrl("R_FW", R_Y_val)
-            elif axis_val_R > 0:
-                Move_ctrl("R_RW", R_Y_val)
-            else:
-                Move_ctrl("R_STOP")
+#        if event.code == axisR_Y:
+#            axis_val_R = event.value-127
+#            R_Y_val = map_axis(abs(event.value-127),0,128,50,100)
+#            print("axisR_Y", R_Y_val)
+#            if axis_val_R < 0:
+#                Move_ctrl("R_FW", R_Y_val)
+#            elif axis_val_R > 0:
+#                Move_ctrl("R_RW", R_Y_val)
+#            else:
+#                Move_ctrl("R_STOP")
         if event.code == axisR_X:
             axis_val_RX = abs(event.value-255)
             R_X_val = map_axis(axis_val_RX,0,255,0,180)
             print("axisR_X", R_X_val)
             pod_ctrl("POD_H", R_X_val)
+        if event.code == axisR_Y:
+            axis_val_RY = abs(event.value-255)
+            R_Y_val = map_axis(axis_val_RY,0,255,-90,90)
+            print("axisR_Y", R_Y_val)
+            pod_ctrl("POD_V", R_Y_val)
        
     if event.type == ecodes.EV_KEY:
         if event.value == 1:
@@ -93,9 +98,13 @@ for event in gamepad.read_loop():
             elif event.code == back:
                 print("back")
 
-            elif event.code == axisLB or event.code == axisRB:
+            elif event.code == axisLB:
                 Move_ctrl("BRK")
     
+            elif event.code == axisRB:
+                print("axis_RB")
+                pod_ctrl("BRK")
+
             elif event.code == lBump:
                 print("left bumper")
             elif event.code == rBump:
