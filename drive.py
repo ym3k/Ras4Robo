@@ -2,6 +2,7 @@
 
 import wiringpi as wpi
 
+WPISETUP = 1
 
 # set GPIO Pin
 # drive motor
@@ -11,25 +12,29 @@ L_IN1 = 17
 L_IN2 = 27
 M_SETUP = 22
 # camera pod
-POD_V = 24
-POD_H = 25
+POD_V = 12
+POD_H = 13
 
 # set PIN Mode
 INPUT = 0
 OUTPUT = 1
+PWM_OUTPUT = wpi.GPIO.PWM_OUTPUT
 
 # set Vcc
 LOW = 0
 HIGH = 1
 
+# set PWM setting
+PWM_RANGE = 1024
+PWM_CLOCK = 375
+
 # set Servo OFFSET
-OFFSET_MS = 3
-SERVO_MIN_MS = 5 + OFFSET_MS
-SERVO_MAX_MS = 25 + OFFSET_MS
+SERVO_MIN_MS = 31
+SERVO_MAX_MS = 135
 
 # camera pod axes degree
 POD_V_MIN_DEG = 0
-POD_V_MAX_DEG = 45
+POD_V_MAX_DEG = 90
 POD_H_MIN_DEG = 0
 POD_H_MAX_DEG = 180
 
@@ -41,11 +46,13 @@ def servoWrite(pin, angle, min=0, max=90):
         angle = max
     elif (angle < min):
         angle =min
-    wpi.softPwmWrite(pin, map_axis(angle, min,max, SERVO_MIN_MS, SERVO_MAX_MS))
+    wpi.pwmWrite(pin, map_axis(angle, min,max, SERVO_MIN_MS, SERVO_MAX_MS))
 
 class caterpillar():
     def __init__(self, wpi):
-        wpi.wiringPiSetupGpio()
+        global WPISETUP
+        if WPISETUP != 0:
+            WPISETUP = wpi.wiringPiSetupGpio()
 
         wpi.pinMode(R_IN1, OUTPUT)
         wpi.pinMode(R_IN2, OUTPUT)
@@ -58,7 +65,7 @@ class caterpillar():
         wpi.softPwmCreate(L_IN1, 0, 100)
         wpi.softPwmCreate(L_IN2, 0, 100)
     
-    def Move_ctrl(self, com, val=0):
+    def Move(self, com, val=0):
         wpi.digitalWrite(M_SETUP, HIGH)
 
         if com == "R_FW":
@@ -90,39 +97,69 @@ class caterpillar():
             wpi.softPwmWrite(L_IN1, 0)
             wpi.softPwmWrite(L_IN2, 0)
             wpi.digitalWrite(M_SETUP, LOW)
+    
+    def Test(self, times=3):
+        print("motor test")
+        for i in range(0,times):
+            self.Move("R_FW", 80)
+            self.Move("L_FW", 80)
+            wpi.delay(2000)
+            self.Move("R_RW", 80)
+            self.Move("L_RW", 80)
+            wpi.delay(1000)
+            self.Move("BRK")
+            wpi.delay(1000)
+            print(i, end=" ")
+
+
 
 class camera_pod():
     def __init__(self,wpi):
-        wpi.wiringPiSetupGpio()
+        global WPISETUP
+        if WPISETUP != 0:
+            WPISETUP = wpi.wiringPiSetupGpio()
 
-        wpi.pinMode(POD_H, OUTPUT)
-        wpi.pinMode(POD_V, OUTPUT)
+        wpi.pinMode(POD_H, PWM_OUTPUT)
+        wpi.pinMode(POD_V, PWM_OUTPUT)
 
-        wpi.softPwmCreate(POD_H, 0, 200)
-        wpi.softPwmCreate(POD_V, 0, 200)
+        wpi.pwmSetMode(wpi.GPIO.PWM_MODE_MS)
+        wpi.pwmSetRange(PWM_RANGE)
+        wpi.pwmSetClock(PWM_CLOCK)
+
+
+        #wpi.softPwmCreate(POD_H, 0, 200)
+        #wpi.softPwmCreate(POD_V, 0, 200)
     
-    def Move_ctrl(self, com, val=0):
+    def Move(self, com, val=0):
         if com == "POD_V":
             servoWrite(POD_V,val, POD_V_MIN_DEG, POD_V_MAX_DEG)
         elif com == "POD_H":
             servoWrite(POD_H,val, POD_H_MIN_DEG, POD_H_MAX_DEG)
+    
+    def Stop(self):
+        wpi.pwmWrite(POD_H, 0)
+        wpi.pwmWrite(POD_V, 0)
+
+
+    def Test(self):
+        self.Move("POD_V", 0)
+        self.Move("POD_H", 0)
+        wpi.delay(1000)
+        self.Move("POD_H", 90)
+        self.Move("POD_V", 45)
+        wpi.delay(1000)
+        self.Move("POD_H", 180)
+        self.Move("POD_V", 90)
+        wpi.delay(1000)
+        self.Move("POD_H", 90)
+        self.Move("POD_V", 0)
+        wpi.delay(1000)
+        self.Stop()
+
 
 if __name__ == "__main__":
     ras4move = caterpillar(wpi)
     ras4cam  = camera_pod(wpi)
 
-    for i in range(0,0):
-        ras4move.Move_ctrl("R_FW", 80)
-        ras4move.Move_ctrl("L_FW", 80)
-        wpi.delay(2000)
-        ras4move.Move_ctrl("R_RW", 80)
-        ras4move.Move_ctrl("L_RW", 80)
-        wpi.delay(1000)
-        ras4move.Move_ctrl("BRK")
-        wpi.delay(1000)
-        print(i, end=" ")
-
-    for i in range(0, 180):
-        ras4cam.Move_ctrl("POD_V",i)
-        ras4cam.Move_ctrl("POD_H",i)
-        wpi.delay(2000)
+    #ras4move.Test()
+    ras4cam.Test()

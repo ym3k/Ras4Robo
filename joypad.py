@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import wiringpi as wpi
-from drive import caterpillar, map_axis
+from drive import caterpillar, camera_pod, map_axis
 
 #import evdev
 from evdev import InputDevice, categorize, ecodes
@@ -43,7 +43,10 @@ print(gamepad)
 # init drive caterpillar
 
 catp = caterpillar(wpi)
-Move_ctrl = catp.Move_ctrl 
+camp = camera_pod(wpi)
+
+Move_ctrl = catp.Move
+pod_ctrl  = camp.Move
 
 #loop and filter by event code and print the mapped label
 for event in gamepad.read_loop():
@@ -68,6 +71,11 @@ for event in gamepad.read_loop():
                 Move_ctrl("R_RW", R_Y_val)
             else:
                 Move_ctrl("R_STOP")
+        if event.code == axisR_X:
+            axis_val_RX = abs(event.value-255)
+            R_X_val = map_axis(axis_val_RX,0,255,0,180)
+            print("axisR_X", R_X_val)
+            pod_ctrl("POD_H", R_X_val)
        
     if event.type == ecodes.EV_KEY:
         if event.value == 1:
