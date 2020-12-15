@@ -50,7 +50,49 @@ class Joypad():
         self.cam = camera_pod(wpi)
         self.Move_ctrl = self.cat.Move
         self.pod_ctrl  = self.cam.Move
+        self.wheel_l = 0
+        self.wheel_r = 0
+        self.axis_l_x = 0
+        self.axis_l_y = 0
 
+    def run(self):
+        speed_l = map_axis(abs(self.wheel_l), 0, AXIS_ABS_MAX, 40, 100)
+        speed_r = map_axis(abs(self.wheel_r), 0, AXIS_ABS_MAX, 40, 100)
+        if self.wheel_l < 0:
+            self.Move_ctrl("L_FW", speed_l)
+        elif self.wheel_l > 0:
+            self.Move_ctrl("L_RW", speed_l)
+        else:
+            self.Move_ctrl("L_STOP")
+        if self.wheel_r < 0:
+            self.Move_ctrl("R_FW", speed_r)
+        elif self.wheel_r > 0:
+            self.Move_ctrl("R_RW", speed_r)
+        else:
+            self.Move_ctrl("R_STOP")
+
+    def update_run(self):
+        if self.axis_l_x > 0:
+            self.wheel_l = self.axis_l_y
+            if self.axis_l_y <= 0:
+                # forward, right or turn right
+                self.wheel_r = self.axis_l_y + self.axis_l_x 
+            else:
+                # backword, right
+                self.wheel_r = self.axis_l_y - self.axis_l_x 
+        elif self.axis_l_x < 0:
+            self.wheel_r = self.axis_l_y
+            if self.axis_l_y <= 0:
+                # forward, left or turn left
+                self.wheel_l = self.axis_l_y - self.axis_l_x 
+            else:
+                # backword, left
+                self.wheel_l = self.axis_l_y + self.axis_l_x 
+        else:
+            # straight forword or backward
+            self.wheel_l = self.wheel_r = self.axis_l_y
+        self.run()
+        
     def loop(self):
         with open(device_path, "rb") as device:
             self.device = device
@@ -58,7 +100,7 @@ class Joypad():
             while self.event:
                 (_, js_val, js_type, js_num) = \
                     struct.unpack(EVENT_FORMAT, self.event)
-                self.print_event(js_val, js_type, js_num)
+               #  self.print_event(js_val, js_type, js_num)
                 if Type(js_type) == Type.EV_KEY:
                     if js_val == 1:
                         if Key(js_num) == Key.axis_R:
@@ -74,6 +116,12 @@ class Joypad():
                         ax_r_y = (js_val * -1 ) + AXIS_ABS_MAX
                         pod_angle_v = map_axis(ax_r_y, 0, AXIS_MAX, -90, 90)
                         self.pod_ctrl("POD_V", pod_angle_v)
+                    if Axis(js_num) == Axis.L_Y:
+                        self.axis_l_y = js_val
+                        self.update_run()
+                    if Axis(js_num) == Axis.L_X:
+                        self.axis_l_x = js_val
+                        self.update_run()
                 self.event = self.device.read(EVENT_SIZE)
 
     def print_event(self, js_val, js_type, js_num):

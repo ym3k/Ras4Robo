@@ -3,7 +3,7 @@ Description=Raspi4 Motor Drive
 
 [Service]
 Type=Simple
-ExecStart=/home/pi/Project/Ras4Robo/joypad.py
+ExecStart=/home/pi/Project/Ras4Robo/joypad2.py
 WorkingDirectory=/home/pi/Project/Ras4Robo
 Restart=on-failure
 
