@@ -73,7 +73,8 @@ def servoWriteV(pin, angle, mindeg=0, maxdeg=90):
     wpi.pwmWrite(pin, map_axis(angle, 0, 111, V_SERVO_MIN_MS, V_SERVO_MAX_MS))
 
 def deleteDrive():
-    for i in DRIVE_INSTANCES:
+    while DRIVE_INSTANCES:
+        i = DRIVE_INSTANCES.pop()
         i.Destroy()
 
 class caterpillar():
@@ -81,7 +82,7 @@ class caterpillar():
         global WPISETUP
         if WPISETUP != 0:
             # not set up wiringPi yet
-            wpi.wiringPiSetupGpio()
+            WPISETUP = wpi.wiringPiSetupGpio()
 
         wpi.pinMode(R_IN1, OUTPUT)
         wpi.pinMode(R_IN2, OUTPUT)
@@ -156,7 +157,7 @@ class camera_pod():
         global WPISETUP
         if WPISETUP != 0:
             # not set up wiringPi yet
-            wpi.wiringPiSetupGpio()
+            WPISETUP = wpi.wiringPiSetupGpio()
 
         wpi.pinMode(POD_H, PWM_OUTPUT)
         wpi.pinMode(POD_V, PWM_OUTPUT)
@@ -185,7 +186,6 @@ class camera_pod():
         wpi.pwmWrite(POD_H, 0)
         wpi.pwmWrite(POD_V, 0)
         self.lock = lock
-
 
     def Test(self):
         self.lock = False

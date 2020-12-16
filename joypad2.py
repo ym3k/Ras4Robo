@@ -141,6 +141,8 @@ class Joypad():
 
 
 if __name__ == "__main__":
+    # wait 15 seconds fpr system ready
+    sleep(15)
     joypad = Joypad()
     signal.signal(signal.SIGTERM, term_handler)
     try:
