@@ -2,10 +2,11 @@
 #
 # this module refers for "https://www.usagi1975.com/30jul170722/"
 from time import sleep
+import signal
 import struct
 from enum import Enum
 import wiringpi as wpi
-from drive import caterpillar, camera_pod, map_axis
+from drive import caterpillar, camera_pod, map_axis, deleteDrive
 
 device_path = "/dev/input/js0"
 
@@ -43,6 +44,10 @@ class Axis(Enum):
     R_Y = 3
     Pad_X = 4
     Pad_Y = 5
+
+def term_handler(sig_number, frame):
+    deleteDrive()
+    exit()
 
 class Joypad():
     def __init__(self, device_path=device_path):
@@ -137,4 +142,8 @@ class Joypad():
 
 if __name__ == "__main__":
     joypad = Joypad()
-    joypad.loop()
+    signal.signal(signal.SIGTERM, term_handler)
+    try:
+        joypad.loop()
+    except KeyboardInterrupt:
+        deleteDrive()

@@ -81,7 +81,6 @@ class caterpillar():
         global DRIVE_INSTANCES
         if len(DRIVE_INSTANCES) == 0:
             # already set up wiringPi
-            print("init")
             wpi.wiringPiSetupGpio()
 
         wpi.pinMode(R_IN1, OUTPUT)
@@ -144,6 +143,7 @@ class caterpillar():
             print(i, end=" ")
 
     def Destroy(self):
+        self.Move("BRK")
         wpi.pinMode(R_IN1, INPUT)
         wpi.pinMode(R_IN2, INPUT)
         wpi.pinMode(L_IN1, INPUT)
@@ -156,7 +156,6 @@ class camera_pod():
         global DRIVE_INSTANCES
         if len(DRIVE_INSTANCES) == 0:
             # already set up wiringPi
-            print("init")
             wpi.wiringPiSetupGpio()
 
         wpi.pinMode(POD_H, PWM_OUTPUT)
@@ -205,6 +204,11 @@ class camera_pod():
         self.Stop()
 
     def Destroy(self):
+        self.lock = False
+        self.Move("POD_H", 90)
+        self.Move("POD_V", 0)
+        wpi.delay(1000)
+        self.Stop()
         wpi.pinMode(POD_H, INPUT)
         wpi.pinMode(POD_V, INPUT)
 
