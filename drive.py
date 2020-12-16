@@ -3,6 +3,7 @@
 import wiringpi as wpi
 
 WPISETUP = 1
+DRIVE_INSTANCES = set()
 
 # set GPIO Pin
 # drive motor
@@ -71,11 +72,17 @@ def servoWriteV(pin, angle, mindeg=0, maxdeg=90):
         angle =mindeg
     wpi.pwmWrite(pin, map_axis(angle, 0, 111, V_SERVO_MIN_MS, V_SERVO_MAX_MS))
 
+def deleteDrive():
+    for i in DRIVE_INSTANCES:
+        i.Destroy()
+
 class caterpillar():
     def __init__(self, wpi):
-        global WPISETUP
-        if WPISETUP != 0:
-            WPISETUP = wpi.wiringPiSetupGpio()
+        global DRIVE_INSTANCES
+        if len(DRIVE_INSTANCES) == 0:
+            # already set up wiringPi
+            print("init")
+            wpi.wiringPiSetupGpio()
 
         wpi.pinMode(R_IN1, OUTPUT)
         wpi.pinMode(R_IN2, OUTPUT)
@@ -87,6 +94,8 @@ class caterpillar():
         wpi.softPwmCreate(R_IN2, 0, 100)
         wpi.softPwmCreate(L_IN1, 0, 100)
         wpi.softPwmCreate(L_IN2, 0, 100)
+
+        DRIVE_INSTANCES.add(self)
     
     def Move(self, com, val=0):
         wpi.digitalWrite(M_SETUP, HIGH)
@@ -134,13 +143,21 @@ class caterpillar():
             wpi.delay(1000)
             print(i, end=" ")
 
+    def Destroy(self):
+        wpi.pinMode(R_IN1, INPUT)
+        wpi.pinMode(R_IN2, INPUT)
+        wpi.pinMode(L_IN1, INPUT)
+        wpi.pinMode(L_IN2, INPUT)
+        wpi.pinMode(M_SETUP, INPUT)
 
 
 class camera_pod():
     def __init__(self,wpi):
-        global WPISETUP
-        if WPISETUP != 0:
-            WPISETUP = wpi.wiringPiSetupGpio()
+        global DRIVE_INSTANCES
+        if len(DRIVE_INSTANCES) == 0:
+            # already set up wiringPi
+            print("init")
+            wpi.wiringPiSetupGpio()
 
         wpi.pinMode(POD_H, PWM_OUTPUT)
         wpi.pinMode(POD_V, PWM_OUTPUT)
@@ -149,6 +166,8 @@ class camera_pod():
         wpi.pwmSetRange(PWM_RANGE)
         wpi.pwmSetClock(PWM_CLOCK)
 
+        DRIVE_INSTANCES.add(self)
+    
         self.lock=True
     
     def Move(self, com, val=0):
@@ -170,6 +189,7 @@ class camera_pod():
 
 
     def Test(self):
+        self.lock = False
         self.Move("POD_V", -27)
         self.Move("POD_H", 0)
         wpi.delay(1000)
@@ -182,8 +202,11 @@ class camera_pod():
         self.Move("POD_H", 90)
         self.Move("POD_V", 0)
         wpi.delay(1000)
-        self.Stop(lock=False)
+        self.Stop()
 
+    def Destroy(self):
+        wpi.pinMode(POD_H, INPUT)
+        wpi.pinMode(POD_V, INPUT)
 
 if __name__ == "__main__":
     ras4move = caterpillar(wpi)
@@ -191,3 +214,5 @@ if __name__ == "__main__":
 
     #ras4move.Test()
     ras4cam.Test()
+
+    deleteDrive()

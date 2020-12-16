@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 #
 # this module refers for "https://www.usagi1975.com/30jul170722/"
+from time import sleep
 import struct
 from enum import Enum
 import wiringpi as wpi
@@ -94,35 +95,41 @@ class Joypad():
         self.run()
         
     def loop(self):
-        with open(device_path, "rb") as device:
-            self.device = device
-            self.event = device.read(EVENT_SIZE)
-            while self.event:
-                (_, js_val, js_type, js_num) = \
-                    struct.unpack(EVENT_FORMAT, self.event)
-               #  self.print_event(js_val, js_type, js_num)
-                if Type(js_type) == Type.EV_KEY:
-                    if js_val == 1:
-                        if Key(js_num) == Key.axis_R:
-                            self.pod_ctrl("BRK")
-                        elif Key(js_num) == Key.axis_L:
-                            self.Move_ctrl("BRK")
-                elif Type(js_type) == Type.EV_ABS:
-                    if Axis(js_num) == Axis.R_X:
-                        ax_r_x = (js_val * -1 ) + AXIS_ABS_MAX
-                        pod_angle_h = map_axis(ax_r_x, 0, AXIS_MAX, 0, 180)
-                        self.pod_ctrl("POD_H", pod_angle_h)
-                    if Axis(js_num) == Axis.R_Y:
-                        ax_r_y = (js_val * -1 ) + AXIS_ABS_MAX
-                        pod_angle_v = map_axis(ax_r_y, 0, AXIS_MAX, -90, 90)
-                        self.pod_ctrl("POD_V", pod_angle_v)
-                    if Axis(js_num) == Axis.L_Y:
-                        self.axis_l_y = js_val
-                        self.update_run()
-                    if Axis(js_num) == Axis.L_X:
-                        self.axis_l_x = js_val
-                        self.update_run()
-                self.event = self.device.read(EVENT_SIZE)
+        while True:
+            try:
+                with open(device_path, "rb") as device:
+                    self.device = device
+                    self.event = device.read(EVENT_SIZE)
+                    while self.event:
+                        (_, js_val, js_type, js_num) = \
+                            struct.unpack(EVENT_FORMAT, self.event)
+                    #  self.print_event(js_val, js_type, js_num)
+                        if Type(js_type) == Type.EV_KEY:
+                            if js_val == 1:
+                                if Key(js_num) == Key.axis_R:
+                                    self.pod_ctrl("BRK")
+                                elif Key(js_num) == Key.axis_L:
+                                    self.Move_ctrl("BRK")
+                        elif Type(js_type) == Type.EV_ABS:
+                            if Axis(js_num) == Axis.R_X:
+                                ax_r_x = (js_val * -1 ) + AXIS_ABS_MAX
+                                pod_angle_h = map_axis(ax_r_x, 0, AXIS_MAX, 0, 180)
+                                self.pod_ctrl("POD_H", pod_angle_h)
+                            if Axis(js_num) == Axis.R_Y:
+                                ax_r_y = (js_val * -1 ) + AXIS_ABS_MAX
+                                pod_angle_v = map_axis(ax_r_y, 0, AXIS_MAX, -90, 90)
+                                self.pod_ctrl("POD_V", pod_angle_v)
+                            if Axis(js_num) == Axis.L_Y:
+                                self.axis_l_y = js_val
+                                self.update_run()
+                            if Axis(js_num) == Axis.L_X:
+                                self.axis_l_x = js_val
+                                self.update_run()
+                        self.event = self.device.read(EVENT_SIZE)
+            except FileNotFoundError:
+                # maybe can not open "/dev/input/js0"
+                # wait 5s, then try again
+                sleep(5)
 
     def print_event(self, js_val, js_type, js_num):
             print("{0}, {1}, {2}".format(Type(js_type).name, js_num, js_val))
