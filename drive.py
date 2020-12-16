@@ -78,9 +78,9 @@ def deleteDrive():
 
 class caterpillar():
     def __init__(self, wpi):
-        global DRIVE_INSTANCES
-        if len(DRIVE_INSTANCES) == 0:
-            # already set up wiringPi
+        global WPISETUP
+        if WPISETUP != 0:
+            # not set up wiringPi yet
             wpi.wiringPiSetupGpio()
 
         wpi.pinMode(R_IN1, OUTPUT)
@@ -153,9 +153,9 @@ class caterpillar():
 
 class camera_pod():
     def __init__(self,wpi):
-        global DRIVE_INSTANCES
-        if len(DRIVE_INSTANCES) == 0:
-            # already set up wiringPi
+        global WPISETUP
+        if WPISETUP != 0:
+            # not set up wiringPi yet
             wpi.wiringPiSetupGpio()
 
         wpi.pinMode(POD_H, PWM_OUTPUT)
@@ -209,8 +209,6 @@ class camera_pod():
         self.Move("POD_V", 0)
         wpi.delay(1000)
         self.Stop()
-        wpi.pinMode(POD_H, INPUT)
-        wpi.pinMode(POD_V, INPUT)
 
 if __name__ == "__main__":
     ras4move = caterpillar(wpi)
