@@ -13,6 +13,11 @@ device_path = "/dev/input/js0"
 EVENT_FORMAT = "LhBB"
 EVENT_SIZE = struct.calcsize(EVENT_FORMAT)
 
+L_WHEEL_MIN = 30
+R_WHEEL_MIN = 30
+L_WHEEL_MAX = 100
+R_WHEEL_MAX = 100
+
 AXIS_ABS_MAX = 32767
 AXIS_MAX = AXIS_ABS_MAX * 2
 # event type
@@ -62,8 +67,8 @@ class Joypad():
         self.axis_l_y = 0
 
     def run(self):
-        speed_l = map_axis(abs(self.wheel_l), 0, AXIS_ABS_MAX, 40, 100)
-        speed_r = map_axis(abs(self.wheel_r), 0, AXIS_ABS_MAX, 40, 100)
+        speed_l = map_axis(abs(self.wheel_l), 0, AXIS_ABS_MAX, L_WHEEL_MIN, L_WHEEL_MAX)
+        speed_r = map_axis(abs(self.wheel_r), 0, AXIS_ABS_MAX, R_WHEEL_MIN, R_WHEEL_MAX)
         if self.wheel_l < 0:
             self.Move_ctrl("L_FW", speed_l)
         elif self.wheel_l > 0:
