@@ -10,7 +10,8 @@ from drive import caterpillar, camera_pod, map_axis, deleteDrive
 
 device_path = "/dev/input/js0"
 
-EVENT_FORMAT = "LhBB"
+#EVENT_FORMAT = "LhBB"
+EVENT_FORMAT = "IhBB"
 EVENT_SIZE = struct.calcsize(EVENT_FORMAT)
 
 L_WHEEL_MIN = 30
@@ -69,6 +70,7 @@ class Joypad():
     def run(self):
         speed_l = map_axis(abs(self.wheel_l), 0, AXIS_ABS_MAX, L_WHEEL_MIN, L_WHEEL_MAX)
         speed_r = map_axis(abs(self.wheel_r), 0, AXIS_ABS_MAX, R_WHEEL_MIN, R_WHEEL_MAX)
+        print("MOVE: {0}, {1}".format(speed_l, speed_r))
         if self.wheel_l < 0:
             self.Move_ctrl("L_FW", speed_l)
         elif self.wheel_l > 0:
@@ -113,7 +115,7 @@ class Joypad():
                     while self.event:
                         (_, js_val, js_type, js_num) = \
                             struct.unpack(EVENT_FORMAT, self.event)
-                    #  self.print_event(js_val, js_type, js_num)
+                        self.print_event(js_val, js_type, js_num)
                         if Type(js_type) == Type.EV_KEY:
                             if js_val == 1:
                                 if Key(js_num) == Key.axis_R:
@@ -142,12 +144,13 @@ class Joypad():
                 sleep(5)
 
     def print_event(self, js_val, js_type, js_num):
-            print("{0}, {1}, {2}".format(Type(js_type).name, js_num, js_val))
+            print("{0}, {1}, {2}".format(js_type, js_num, js_val))
+            #print("{0}, {1}, {2}".format(Type(js_type).name, js_num, js_val))
 
 
 if __name__ == "__main__":
-    # wait 15 seconds fpr system ready
-    sleep(15)
+    # wait 10 seconds fpr system ready
+    sleep(10)
     joypad = Joypad()
     signal.signal(signal.SIGTERM, term_handler)
     try:
