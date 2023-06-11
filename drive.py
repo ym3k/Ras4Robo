@@ -50,8 +50,8 @@ V_SERVO_MAX_MS = 81
 H_SERVO_MIN_MS = 31
 H_SERVO_MAX_MS = 135
 
-def gpio_init():
-    return pigpio.pi()
+def gpio_init(host='localhost'):
+    return pigpio.pi(host)
 
 def map_axis(value,fromLow,fromHigh,toLow,toHigh):
     return int((toHigh-toLow)*(value-fromLow) / (fromHigh-fromLow) + toLow)
@@ -62,7 +62,7 @@ def deleteDrive(pi):
     pi.stop()
 
 class Servo():
-    def __init__(self, pi, pin, pod_mindeg, pod_maxdeg, 
+    def __init__(self, pi, pin, pod_mindeg, pod_maxdeg,
             servo_mindeg=0, servo_maxdeg=180, minms=25, maxms=135):
         self.pi = pi
         self.pin = pin
@@ -87,14 +87,14 @@ class Servo():
             angle = maxdeg
         elif (angle < mindeg):
             angle = mindeg
-        wpi.set_PWM_dutycycle(self.pin, map_axis(angle, 
-                                            self.servo_mindeg, self.servo_maxdeg, 
+        wpi.set_PWM_dutycycle(self.pin, map_axis(angle,
+                                            self.servo_mindeg, self.servo_maxdeg,
                                             self.minms, self.maxms))
 
     def stop(self):
         self.pi.set_PWM_dutycycle(self.pin, 0)
 
-    
+
 class Caterpillar():
     def __init__(self, pi):
         for i in [R_IN1, R_IN2, L_IN1, L_IN2]:
@@ -167,10 +167,10 @@ class Caterpillar():
 class CameraPod():
     def __init__(self,pi):
         self.pod_v = Servo(pi, POD_V, POD_V_MIN_DEG, POD_V_MAX_DEG,
-                                 V_SERVO_MIN_DEG, V_SERVO_MAX_DEG, 
+                                 V_SERVO_MIN_DEG, V_SERVO_MAX_DEG,
                                  V_SERVO_MIN_MS, V_SERVO_MAX_MS)
         self.pod_h = Servo(pi, POD_H, POD_H_MIN_DEG, POD_H_MAX_DEG,
-                                 H_SERVO_MIN_DEG, H_SERVO_MAX_DEG, 
+                                 H_SERVO_MIN_DEG, H_SERVO_MAX_DEG,
                                  H_SERVO_MIN_MS, H_SERVO_MAX_MS)
         DRIVE_INSTANCES.add(self)
         self.lock=True
