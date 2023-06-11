@@ -1,6 +1,5 @@
 [Unit]
 Description=Raspi4 Motor Drive
-Requires=pigpiod.service
 
 [Service]
 Type=Simple
