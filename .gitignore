@@ -1,3 +1,6 @@
 __pycache__
 .vscode
 .~*
+var/mqtt/data/*
+var/mqtt/log/*
+!var/**/.keepme
