@@ -8,3 +8,16 @@ services:
     network_mode: "host"
     command: /Ras4Robo/start.sh
     restart: always
+    depends_on:
+      - mqttbroker
+  mqttbroker:
+    image: eclipse-mosquitto
+    network_mode: host
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - ./mqtt/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./var/mqtt/data:/mosquitto/data
+      - ./var/mqtt/log:/mosquitto/log
+    restart: always
