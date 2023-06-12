@@ -1,0 +1,10 @@
+services:
+  ras4robo:
+    image: ras4robo:0.1
+    volumes:
+      - .:/Ras4Robo
+    devices:
+      - /dev/input/js0:/dev/input/js0
+    network_mode: "host"
+    command: /Ras4Robo/start.sh
+    restart: always
