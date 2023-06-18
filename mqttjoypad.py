@@ -21,7 +21,7 @@ device_path = "/dev/input/js0"
 class Mqttjoypad():
     def __init__(self, host, port, joypad):
         self.mqttc = mqtt.Client()
-        self.mqttc.on_pulish = self.on_publish
+        self.mqttc.on_publish = self.on_publish
         self.mqttc.on_connect = self.on_connect
         self.mqttc.connect(host, port, MQTT_KEEPALIVE)
         self.device_path = joypad
@@ -40,6 +40,7 @@ class Mqttjoypad():
         print("publish: {0}".format(result))
 
     def loop(self):
+        self.mqttc.loop_start()
         while True:
             try:
                 with open(self.device_path, "rb") as device:
@@ -53,6 +54,7 @@ class Mqttjoypad():
                 # wait 5s, then try again
                 print('cant open js0, try once more.')
                 time.sleep(5)
+        self.mqttc.loop_stop()
 
 
 if __name__ == "__main__":

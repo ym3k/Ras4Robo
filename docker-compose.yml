@@ -1,5 +1,5 @@
 services:
-  ras4robo_joypad:
+  joypad:
     image: ras4robo:0.1
     volumes:
       - .:/Ras4Robo
@@ -9,8 +9,8 @@ services:
     command: /Ras4Robo/mqttjoypad.py
     restart: always
     depends_on:
-      - ras4robo_drive
-  ras4robo_drive:
+      - drive
+  drive:
     image: ras4robo:0.1
     volumes:
       - .:/Ras4Robo
