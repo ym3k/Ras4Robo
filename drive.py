@@ -60,6 +60,7 @@ def deleteDrive(pi):
     for i in  DRIVE_INSTANCES:
         i.destroy()
     pi.stop()
+    return 0
 
 class Servo():
     def __init__(self, pi, pin, pod_mindeg, pod_maxdeg,
@@ -104,43 +105,49 @@ class Caterpillar():
 
         pi.set_mode(M_SETUP, OUTPUT)
         self.pi = pi
+        self.brk = False
 
         DRIVE_INSTANCES.add(self)
 
 
     def move(self, com, val=0):
         wpi = self.pi
-        wpi.write(M_SETUP, HIGH)
+        if self.brk == False:
+            wpi.write(M_SETUP, HIGH)
+            if com == "R_FW":
+                wpi.set_PWM_dutycycle(R_IN1, val)
+                wpi.set_PWM_dutycycle(R_IN2, 0)
+            elif com == "R_RW":
+                wpi.set_PWM_dutycycle(R_IN1, 0)
+                wpi.set_PWM_dutycycle(R_IN2, val)
+            elif com == "L_FW":
+                wpi.set_PWM_dutycycle(L_IN1, val)
+                wpi.set_PWM_dutycycle(L_IN2, 0)
+            elif com == "L_RW":
+                wpi.set_PWM_dutycycle(L_IN1, 0)
+                wpi.set_PWM_dutycycle(L_IN2, val)
+            elif com == "R_STOP":
+                wpi.set_PWM_dutycycle(R_IN1, 0)
+                wpi.set_PWM_dutycycle(R_IN2, 0)
+            elif com == "L_STOP":
+                wpi.set_PWM_dutycycle(L_IN1, 0)
+                wpi.set_PWM_dutycycle(L_IN2, 0)
+            elif com == "BRK_ON":
+                wpi.set_PWM_dutycycle(R_IN1, 100)
+                wpi.set_PWM_dutycycle(R_IN2, 100)
+                wpi.set_PWM_dutycycle(L_IN1, 100)
+                wpi.set_PWM_dutycycle(L_IN2, 100)
+                sleep(0.5)
+                wpi.set_PWM_dutycycle(R_IN1, 0)
+                wpi.set_PWM_dutycycle(R_IN2, 0)
+                wpi.set_PWM_dutycycle(L_IN1, 0)
+                wpi.set_PWM_dutycycle(L_IN2, 0)
+                self.brk = True
+                wpi.write(M_SETUP, LOW)
+        else:
+            if com == "BRK_OFF":
+                self.brk = False
 
-        if com == "R_FW":
-            wpi.set_PWM_dutycycle(R_IN1, val)
-            wpi.set_PWM_dutycycle(R_IN2, 0)
-        elif com == "R_RW":
-            wpi.set_PWM_dutycycle(R_IN1, 0)
-            wpi.set_PWM_dutycycle(R_IN2, val)
-        elif com == "L_FW":
-            wpi.set_PWM_dutycycle(L_IN1, val)
-            wpi.set_PWM_dutycycle(L_IN2, 0)
-        elif com == "L_RW":
-            wpi.set_PWM_dutycycle(L_IN1, 0)
-            wpi.set_PWM_dutycycle(L_IN2, val)
-        elif com == "R_STOP":
-            wpi.set_PWM_dutycycle(R_IN1, 0)
-            wpi.set_PWM_dutycycle(R_IN2, 0)
-        elif com == "L_STOP":
-            wpi.set_PWM_dutycycle(L_IN1, 0)
-            wpi.set_PWM_dutycycle(L_IN2, 0)
-        elif com == "BRK":
-            wpi.set_PWM_dutycycle(R_IN1, 100)
-            wpi.set_PWM_dutycycle(R_IN2, 100)
-            wpi.set_PWM_dutycycle(L_IN1, 100)
-            wpi.set_PWM_dutycycle(L_IN2, 100)
-            sleep(0.5)
-            wpi.set_PWM_dutycycle(R_IN1, 0)
-            wpi.set_PWM_dutycycle(R_IN2, 0)
-            wpi.set_PWM_dutycycle(L_IN1, 0)
-            wpi.set_PWM_dutycycle(L_IN2, 0)
-            wpi.write(M_SETUP, LOW)
 
     def test(self, times=3):
         print("motor test")

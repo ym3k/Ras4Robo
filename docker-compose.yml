@@ -1,21 +1,30 @@
 services:
-  ras4robo:
+  ras4robo_joypad:
     image: ras4robo:0.1
     volumes:
       - .:/Ras4Robo
     devices:
       - /dev/input/js0:/dev/input/js0
     network_mode: "host"
-    command: /Ras4Robo/start.sh
+    command: /Ras4Robo/mqttjoypad.py
+    restart: always
+    depends_on:
+      - ras4robo_drive
+  ras4robo_drive:
+    image: ras4robo:0.1
+    volumes:
+      - .:/Ras4Robo
+    network_mode: "host"
+    command: /Ras4Robo/mqttdrive.py
     restart: always
     depends_on:
       - mqttbroker
   mqttbroker:
     image: eclipse-mosquitto
     network_mode: host
-    ports:
-      - 1883:1883
-      - 9001:9001
+    #ports:
+    #  - 1883:1883
+    #  - 9001:9001
     volumes:
       - ./mqtt/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - ./var/mqtt/data:/mosquitto/data
