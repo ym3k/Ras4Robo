@@ -56,17 +56,20 @@ class Mqttdrive():
                 struct.unpack(EVENT_FORMAT, msg.payload)
         print("{0}, {1}, {2}".format(js_type, js_num, js_val))
         if Type(js_type) == Type.EV_KEY:
-            if js_val == 1:
+            try:
                 if Key(js_num) == Key.axis_R:
-                    self.pod_ctrl("BRK")
+                    if js_val == 1:
+                        self.pod_ctrl("BRK")
                 elif Key(js_num) == Key.A:
-                    print("BRK_ON")
-                    self.Move_ctrl("BRK_ON")
-            elif js_val == 0:
-                if Key(js_num) == Key.A:
-                    print("BRK_OFF")
-                    self.Move_ctrl("BRK_OFF")
-                    self.update_run()
+                    if js_val == 1:
+                        print("BRK_ON")
+                        self.Move_ctrl("BRK_ON")
+                    elif js_val == 0:
+                        print("BRK_OFF")
+                        self.Move_ctrl("BRK_OFF")
+                        self.update_run()
+            except ValueError:
+                print("Button {0} is not defined".format(js_num))
         elif Type(js_type) == Type.EV_ABS:
             if Axis(js_num) == Axis.R_X:
                 ax_r_x = (js_val * -1 ) + AXIS_ABS_MAX
