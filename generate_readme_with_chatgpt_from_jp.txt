@@ -24,6 +24,12 @@ ITの基本的な知識がある読者を対象にする。
 - Ubuntu 22.04 LTS(64bit)
 どちらでも動作するがraspberry pi OS をおすすめする。
 
+### デバイス
+- サーボモーター： SG90 ２個
+- DCモータードライバー： DRV8835 2個
+- モーター：　タミヤミニ四駆　トルクチューン２モーター　２個
+- LiDAR：　YLIDAR GS2(850nm) １個
+
 ## 準備
 ### インストールソフトウェア
 docker compose でアプリケーション動作管理させる。
@@ -73,7 +79,7 @@ mqttのおかげでリモートPCからも移動やカメラのパンチルト�
 - pygame
 をインストールし、
 ```
-python joypad_pygame.py
+python joypad_pygame.py --host <hostname>
 ```
 を実行する。
 
