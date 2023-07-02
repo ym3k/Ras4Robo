@@ -1,3 +1,4 @@
 [submodule "ydlidar/YDLidar-SDK"]
 	path = ydlidar/YDLidar-SDK
 	url = https://github.com/YDLIDAR/YDLidar-SDK.git
+	ignore = dirty
