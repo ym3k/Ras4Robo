@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     def term_handler(signumber, frame):
         _ = mqttjoypad.close()
-        time.sleep(5)
+        #time.sleep(5)
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, term_handler)

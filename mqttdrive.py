@@ -142,7 +142,6 @@ if __name__ == "__main__":
                          gpiohost=args.gpiohost)
     def term_handler(signumber, frame):
         _ = mqtdrive.close()
-        time.sleep(5)
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, term_handler)

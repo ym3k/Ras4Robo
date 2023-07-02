@@ -1,0 +1,12 @@
+services:
+  ydlidergs2:
+    image: ydlidargs2:0.1
+    volumes:
+      - .:/ydlidar-gs2
+    devices:
+      - /dev/serial0:/dev/serial0
+      - /dev/ttyS0:/dev/ttyS0
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    network_mode: "host"
+    command: sh /ydlidar-gs2/make_packages.sh
+
