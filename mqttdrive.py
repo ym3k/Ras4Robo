@@ -145,9 +145,6 @@ if __name__ == "__main__":
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, term_handler)
+    signal.signal(signal.SIGINT, term_handler)
 
-    try:
-        mqtdrive.loop()
-    except KeyboardInterrupt:
-        mqtdrive.close()
-        sys.exit(0)
+    mqtdrive.loop()

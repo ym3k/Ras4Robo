@@ -19,6 +19,17 @@ services:
     restart: always
     depends_on:
       - mqttbroker
+  lidar:
+    image: ras4robo:0.1
+    volumes:
+      - .:/Ras4Robo
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    network_mode: "host"
+    command: /Ras4Robo/mqttlidar.py
+    restart: always
+    depends_on:
+      - mqttbroker
   mqttbroker:
     image: eclipse-mosquitto
     network_mode: host

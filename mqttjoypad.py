@@ -76,9 +76,6 @@ if __name__ == "__main__":
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, term_handler)
+    signal.signal(signal.SIGINT, term_handler)
 
-    try:
-        mqttjoypad.loop()
-    except KeyboardInterrupt:
-        mqttjoypad.close()
-        sys.exit(0)
+    mqttjoypad.loop()
