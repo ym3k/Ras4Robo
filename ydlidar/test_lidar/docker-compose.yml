@@ -1,0 +1,9 @@
+services:
+  ydlidar:
+    image: ras4robo:0.1
+    volumes:
+      - ../..:/ydlidar-gs2
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    network_mode: "host"
+    command: sleep 100000000

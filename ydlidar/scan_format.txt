@@ -1,0 +1,12 @@
+scan.points is LaserPoints
+LaserPoints is a std::vector<LaserPoint>[160]
+ GS2 has 160 scan points.
+
+scan.stamp is uint64_t (defined in SDK/core/common/ydlidar_def.h)
+LaserPoint is defined in the same file.
+
+struct {
+    float angle # in radian
+    float range # in meter
+    float intensity # strength of recieve light
+} as LaserPoint
